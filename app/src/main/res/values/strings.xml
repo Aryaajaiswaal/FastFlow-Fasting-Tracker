@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">FastFlow</string>
+    <string name="tab_timer">Timer</string>
+    <string name="tab_stages">Stages</string>
+    <string name="tab_history">History</string>
+    <string name="tab_analytics">Stats</string>
+    <string name="tab_learn">Learn</string>
+    
+    <string name="start_fast">Start Fast</string>
+    <string name="end_fast">End Fast</string>
+    <string name="fasting">Fasting</string>
+    <string name="eating_window">Eating Window</string>
+    <string name="elapsed_time">Elapsed Time</string>
+    <string name="remaining_time">Remaining Time</string>
+    <string name="target_reached">Target Reached!</string>
+    
+    <string name="hydration_title">Hydration</string>
+    <string name="add_water_250">+250 ml</string>
+    <string name="add_water_500">+500 ml</string>
+    <string name="log_feeling">Log Feeling &amp; Notes</string>
+</resources>

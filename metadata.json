@@ -1,0 +1,6 @@
+{
+  "name": "FastFlow",
+  "description": "Intermittent fasting timer and tracker with metabolic stages, hydration logging, and fasting analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
