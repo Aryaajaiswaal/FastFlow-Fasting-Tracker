@@ -215,7 +215,7 @@ fun LearnScreen(modifier: Modifier = Modifier) {
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "FastFlow is completely free with no subscriptions, paywalls, or third-party ads. All your fast logs, hydration entries, and personal notes remain 100% private and stored locally on your device.",
+                        text = "FastFlow is completely free and supported by non-intrusive ads (no expensive subscriptions or paywalls). All your fast logs, hydration entries, and personal notes remain 100% private and stored locally on your device.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

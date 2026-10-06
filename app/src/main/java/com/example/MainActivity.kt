@@ -5,16 +5,38 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.example.ui.MainAppScaffold
+import com.example.ui.ads.AdManager
+import com.example.ui.ads.AdMobHelper
 import com.example.ui.theme.MyApplicationTheme
+import com.google.android.gms.ads.AdView
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var adMobHelper: AdMobHelper
+    private var bannerAdView: AdView? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // AdMob initialization helper that uses the configured IDs to load a banner ad in onCreate
+        adMobHelper = AdMobHelper.getInstance(this)
+        bannerAdView = adMobHelper.initializeAndLoadBanner(
+            onInitialized = {
+                // Preload interstitial ad for session completion
+                AdManager.loadInterstitialAd(this)
+            }
+        )
+
         setContent {
             MyApplicationTheme {
-                MainAppScaffold()
+                MainAppScaffold(preloadedBannerAdView = bannerAdView)
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        adMobHelper.destroyBanner()
     }
 }

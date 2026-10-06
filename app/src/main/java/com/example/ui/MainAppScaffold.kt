@@ -1,9 +1,12 @@
 package com.example.ui
 
+import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
@@ -20,17 +23,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.ui.ads.AdManager
+import com.example.ui.ads.BannerAdView
 import com.example.ui.components.CustomPlanDialog
 import com.example.ui.components.EditStartTimeDialog
 import com.example.ui.components.FinishFastDialog
@@ -44,8 +48,10 @@ import com.example.ui.screens.TimerScreen
 
 @Composable
 fun MainAppScaffold(
+    preloadedBannerAdView: com.google.android.gms.ads.AdView? = null,
     viewModel: FastFlowViewModel = viewModel()
 ) {
+    val context = LocalContext.current
     val currentScreen by viewModel.currentScreen.collectAsStateWithLifecycle()
     val activeFast by viewModel.activeFast.collectAsStateWithLifecycle()
     val completedFasts by viewModel.completedFasts.collectAsStateWithLifecycle()
@@ -75,75 +81,80 @@ fun MainAppScaffold(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            NavigationBar(
-                modifier = Modifier.testTag("main_bottom_nav"),
-                containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = 8.dp
-            ) {
-                NavigationBarItem(
-                    selected = currentScreen == AppScreen.Timer,
-                    onClick = { viewModel.navigateTo(AppScreen.Timer) },
-                    icon = {
-                        Icon(
-                            imageVector = if (currentScreen == AppScreen.Timer) Icons.Filled.Timer else Icons.Outlined.Timer,
-                            contentDescription = "Timer Tab"
-                        )
-                    },
-                    label = { Text("Timer") },
-                    modifier = Modifier.testTag("nav_timer_tab")
-                )
+            Column(modifier = Modifier.fillMaxWidth()) {
+                // Persistent Banner Ad for continuous monetization
+                BannerAdView(preloadedAdView = preloadedBannerAdView)
 
-                NavigationBarItem(
-                    selected = currentScreen == AppScreen.Stages,
-                    onClick = { viewModel.navigateTo(AppScreen.Stages) },
-                    icon = {
-                        Icon(
-                            imageVector = if (currentScreen == AppScreen.Stages) Icons.Filled.Bolt else Icons.Outlined.Bolt,
-                            contentDescription = "Stages Tab"
-                        )
-                    },
-                    label = { Text("Stages") },
-                    modifier = Modifier.testTag("nav_stages_tab")
-                )
+                NavigationBar(
+                    modifier = Modifier.testTag("main_bottom_nav"),
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 8.dp
+                ) {
+                    NavigationBarItem(
+                        selected = currentScreen == AppScreen.Timer,
+                        onClick = { viewModel.navigateTo(AppScreen.Timer) },
+                        icon = {
+                            Icon(
+                                imageVector = if (currentScreen == AppScreen.Timer) Icons.Filled.Timer else Icons.Outlined.Timer,
+                                contentDescription = "Timer Tab"
+                            )
+                        },
+                        label = { Text("Timer") },
+                        modifier = Modifier.testTag("nav_timer_tab")
+                    )
 
-                NavigationBarItem(
-                    selected = currentScreen == AppScreen.History,
-                    onClick = { viewModel.navigateTo(AppScreen.History) },
-                    icon = {
-                        Icon(
-                            imageVector = if (currentScreen == AppScreen.History) Icons.Filled.History else Icons.Outlined.History,
-                            contentDescription = "History Tab"
-                        )
-                    },
-                    label = { Text("History") },
-                    modifier = Modifier.testTag("nav_history_tab")
-                )
+                    NavigationBarItem(
+                        selected = currentScreen == AppScreen.Stages,
+                        onClick = { viewModel.navigateTo(AppScreen.Stages) },
+                        icon = {
+                            Icon(
+                                imageVector = if (currentScreen == AppScreen.Stages) Icons.Filled.Bolt else Icons.Outlined.Bolt,
+                                contentDescription = "Stages Tab"
+                            )
+                        },
+                        label = { Text("Stages") },
+                        modifier = Modifier.testTag("nav_stages_tab")
+                    )
 
-                NavigationBarItem(
-                    selected = currentScreen == AppScreen.Stats,
-                    onClick = { viewModel.navigateTo(AppScreen.Stats) },
-                    icon = {
-                        Icon(
-                            imageVector = if (currentScreen == AppScreen.Stats) Icons.Filled.BarChart else Icons.Outlined.BarChart,
-                            contentDescription = "Stats Tab"
-                        )
-                    },
-                    label = { Text("Stats") },
-                    modifier = Modifier.testTag("nav_stats_tab")
-                )
+                    NavigationBarItem(
+                        selected = currentScreen == AppScreen.History,
+                        onClick = { viewModel.navigateTo(AppScreen.History) },
+                        icon = {
+                            Icon(
+                                imageVector = if (currentScreen == AppScreen.History) Icons.Filled.History else Icons.Outlined.History,
+                                contentDescription = "History Tab"
+                            )
+                        },
+                        label = { Text("History") },
+                        modifier = Modifier.testTag("nav_history_tab")
+                    )
 
-                NavigationBarItem(
-                    selected = currentScreen == AppScreen.Learn,
-                    onClick = { viewModel.navigateTo(AppScreen.Learn) },
-                    icon = {
-                        Icon(
-                            imageVector = if (currentScreen == AppScreen.Learn) Icons.Filled.MenuBook else Icons.Outlined.MenuBook,
-                            contentDescription = "Learn Tab"
-                        )
-                    },
-                    label = { Text("Learn") },
-                    modifier = Modifier.testTag("nav_learn_tab")
-                )
+                    NavigationBarItem(
+                        selected = currentScreen == AppScreen.Stats,
+                        onClick = { viewModel.navigateTo(AppScreen.Stats) },
+                        icon = {
+                            Icon(
+                                imageVector = if (currentScreen == AppScreen.Stats) Icons.Filled.BarChart else Icons.Outlined.BarChart,
+                                contentDescription = "Stats Tab"
+                            )
+                        },
+                        label = { Text("Stats") },
+                        modifier = Modifier.testTag("nav_stats_tab")
+                    )
+
+                    NavigationBarItem(
+                        selected = currentScreen == AppScreen.Learn,
+                        onClick = { viewModel.navigateTo(AppScreen.Learn) },
+                        icon = {
+                            Icon(
+                                imageVector = if (currentScreen == AppScreen.Learn) Icons.Filled.MenuBook else Icons.Outlined.MenuBook,
+                                contentDescription = "Learn Tab"
+                            )
+                        },
+                        label = { Text("Learn") },
+                        modifier = Modifier.testTag("nav_learn_tab")
+                    )
+                }
             }
         }
     ) { innerPadding ->
@@ -236,6 +247,10 @@ fun MainAppScaffold(
             targetHours = activeFast?.targetDurationHours ?: settings.targetFastHours,
             onComplete = { feeling, note, weight ->
                 viewModel.endFast(feeling, note, weight)
+                // Trigger full-screen Interstitial ad upon session completion
+                (context as? Activity)?.let { activity ->
+                    AdManager.showInterstitialAd(activity)
+                }
             },
             onCancelFast = { viewModel.cancelFast() },
             onDismiss = { viewModel.setFinishDialogVisible(false) }
