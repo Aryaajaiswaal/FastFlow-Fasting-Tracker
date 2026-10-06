@@ -1,6 +1,7 @@
 package com.example
 
 import com.example.data.entity.FastingRecord
+import com.example.data.entity.WaterLog
 import com.example.model.FastingPlan
 import com.example.model.FastingStage
 import org.junit.Assert.assertEquals
@@ -38,5 +39,15 @@ class ExampleUnitTest {
         val defaultPlan = FastingPlan.PRESETS.first()
         assertEquals("16:8 LeanGains", defaultPlan.name)
         assertEquals(16f, defaultPlan.fastHours, 0.01f)
+    }
+
+    @Test
+    fun waterLog_entity_creationAndSum() {
+        val log1 = WaterLog(amountMl = 250, dateKey = "2026-10-06")
+        val log2 = WaterLog(amountMl = 500, dateKey = "2026-10-06")
+        assertEquals(250, log1.amountMl)
+        assertEquals(500, log2.amountMl)
+        assertEquals(750, log1.amountMl + log2.amountMl)
+        assertEquals("2026-10-06", log1.dateKey)
     }
 }

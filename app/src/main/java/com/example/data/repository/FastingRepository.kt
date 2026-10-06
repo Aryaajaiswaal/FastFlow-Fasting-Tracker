@@ -6,6 +6,7 @@ import com.example.data.dao.WaterDao
 import com.example.data.entity.FastingRecord
 import com.example.data.entity.UserSettings
 import com.example.data.entity.WaterLog
+import com.example.data.firebase.FirestoreSyncManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.text.SimpleDateFormat
@@ -15,7 +16,8 @@ import java.util.Locale
 class FastingRepository(
     private val fastingDao: FastingDao,
     private val waterDao: WaterDao,
-    private val settingsDao: SettingsDao
+    private val settingsDao: SettingsDao,
+    private val firestoreSync: FirestoreSyncManager? = null
 ) {
     val activeFast: Flow<FastingRecord?> = fastingDao.getActiveFast()
     val allFasts: Flow<List<FastingRecord>> = fastingDao.getAllFasts()
@@ -46,12 +48,12 @@ class FastingRepository(
         // First end or cancel any existing active fast if one somehow exists
         val currentActive = fastingDao.getActiveFastDirect()
         if (currentActive != null) {
-            fastingDao.updateFast(
-                currentActive.copy(
-                    endTimeMillis = System.currentTimeMillis(),
-                    status = "COMPLETED"
-                )
+            val completed = currentActive.copy(
+                endTimeMillis = System.currentTimeMillis(),
+                status = "COMPLETED"
             )
+            fastingDao.updateFast(completed)
+            firestoreSync?.syncFastingRecord(completed)
         }
 
         val startTime = customStartTime ?: System.currentTimeMillis()
@@ -61,7 +63,9 @@ class FastingRepository(
             planName = planName,
             status = "ACTIVE"
         )
-        return fastingDao.insertFast(record)
+        val id = fastingDao.insertFast(record)
+        firestoreSync?.syncFastingRecord(record.copy(id = id))
+        return id
     }
 
     suspend fun endFast(
@@ -80,6 +84,7 @@ class FastingRepository(
             weightKg = weightKg ?: fast.weightKg
         )
         fastingDao.updateFast(updated)
+        firestoreSync?.syncFastingRecord(updated)
     }
 
     suspend fun cancelFast(fastId: Long) {
@@ -89,11 +94,14 @@ class FastingRepository(
             status = "CANCELLED"
         )
         fastingDao.updateFast(updated)
+        firestoreSync?.syncFastingRecord(updated)
     }
 
     suspend fun updateFastStartTime(fastId: Long, newStartTime: Long) {
         val fast = fastingDao.getFastById(fastId) ?: return
-        fastingDao.updateFast(fast.copy(startTimeMillis = newStartTime))
+        val updated = fast.copy(startTimeMillis = newStartTime)
+        fastingDao.updateFast(updated)
+        firestoreSync?.syncFastingRecord(updated)
     }
 
     suspend fun updateFastDetails(
@@ -103,17 +111,18 @@ class FastingRepository(
         weightKg: Float?
     ) {
         val fast = fastingDao.getFastById(fastId) ?: return
-        fastingDao.updateFast(
-            fast.copy(
-                feeling = feeling,
-                note = note,
-                weightKg = weightKg
-            )
+        val updated = fast.copy(
+            feeling = feeling,
+            note = note,
+            weightKg = weightKg
         )
+        fastingDao.updateFast(updated)
+        firestoreSync?.syncFastingRecord(updated)
     }
 
     suspend fun deleteFast(fastId: Long) {
         fastingDao.deleteFastById(fastId)
+        firestoreSync?.deleteFastingRecord(fastId)
     }
 
     suspend fun addWater(amountMl: Int) {
@@ -130,18 +139,20 @@ class FastingRepository(
 
     suspend fun updatePlan(planName: String, targetHours: Float, eatHours: Float) {
         val current = settingsDao.getSettingsDirect() ?: UserSettings()
-        settingsDao.saveSettings(
-            current.copy(
-                selectedPlanName = planName,
-                targetFastHours = targetHours,
-                eatingWindowHours = eatHours
-            )
+        val updated = current.copy(
+            selectedPlanName = planName,
+            targetFastHours = targetHours,
+            eatingWindowHours = eatHours
         )
+        settingsDao.saveSettings(updated)
+        firestoreSync?.syncUserSettings(updated)
     }
 
     suspend fun updateWaterGoal(goalMl: Int) {
         val current = settingsDao.getSettingsDirect() ?: UserSettings()
-        settingsDao.saveSettings(current.copy(dailyWaterGoalMl = goalMl))
+        val updated = current.copy(dailyWaterGoalMl = goalMl)
+        settingsDao.saveSettings(updated)
+        firestoreSync?.syncUserSettings(updated)
     }
 
     suspend fun toggleNotifications(enabled: Boolean) {

@@ -49,18 +49,43 @@ sealed class AppScreen {
 
 class FastFlowViewModel(application: Application) : AndroidViewModel(application) {
 
+    private val authManager = com.example.data.firebase.FirebaseAuthManager(application)
+    private val firestoreSync = com.example.data.firebase.FirestoreSyncManager(application)
     private val repository: FastingRepository
+
+    val currentUser = authManager.currentUser
 
     init {
         val database = AppDatabase.getDatabase(application)
         repository = FastingRepository(
             database.fastingDao(),
             database.waterDao(),
-            database.settingsDao()
+            database.settingsDao(),
+            firestoreSync
         )
         viewModelScope.launch {
             repository.initializeDefaultSettingsIfNeeded()
+            authManager.attemptSilentSignIn(viewModelScope)
         }
+    }
+
+    fun signInWithGoogle(
+        activity: android.app.Activity,
+        onSuccess: () -> Unit = {},
+        onError: (String) -> Unit = {},
+        onCancelled: () -> Unit = {}
+    ) {
+        authManager.signInWithGoogle(
+            activity = activity,
+            scope = viewModelScope,
+            onSuccess = { onSuccess() },
+            onError = onError,
+            onCancelled = onCancelled
+        )
+    }
+
+    fun signOut(onComplete: () -> Unit = {}) {
+        authManager.signOut(viewModelScope, onComplete)
     }
 
     private val _currentScreen = MutableStateFlow<AppScreen>(AppScreen.Timer)

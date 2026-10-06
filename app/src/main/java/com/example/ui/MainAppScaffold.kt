@@ -49,9 +49,12 @@ import com.example.ui.screens.TimerScreen
 @Composable
 fun MainAppScaffold(
     preloadedBannerAdView: com.google.android.gms.ads.AdView? = null,
+    adMobHelper: com.example.ui.ads.AdMobHelper? = null,
     viewModel: FastFlowViewModel = viewModel()
 ) {
     val context = LocalContext.current
+    val helper = adMobHelper ?: com.example.ui.ads.AdMobHelper.getInstance(context)
+    val currentUser by viewModel.currentUser.collectAsStateWithLifecycle()
     val currentScreen by viewModel.currentScreen.collectAsStateWithLifecycle()
     val activeFast by viewModel.activeFast.collectAsStateWithLifecycle()
     val completedFasts by viewModel.completedFasts.collectAsStateWithLifecycle()
@@ -183,7 +186,14 @@ fun MainAppScaffold(
                             onEditWaterGoal = { viewModel.setWaterGoalDialogVisible(true) },
                             onNavigateToStages = { viewModel.navigateTo(AppScreen.Stages) },
                             onViewAllHistory = { viewModel.navigateTo(AppScreen.History) },
-                            onDeleteFast = { id -> viewModel.deleteFast(id) }
+                            onDeleteFast = { id -> viewModel.deleteFast(id) },
+                            currentUser = currentUser,
+                            onSignInClick = {
+                                (context as? Activity)?.let { activity ->
+                                    viewModel.signInWithGoogle(activity)
+                                }
+                            },
+                            onSignOutClick = { viewModel.signOut() }
                         )
                     }
                     AppScreen.Stages -> {
@@ -249,7 +259,7 @@ fun MainAppScaffold(
                 viewModel.endFast(feeling, note, weight)
                 // Trigger full-screen Interstitial ad upon session completion
                 (context as? Activity)?.let { activity ->
-                    AdManager.showInterstitialAd(activity)
+                    helper.showInterstitialAd(activity)
                 }
             },
             onCancelFast = { viewModel.cancelFast() },

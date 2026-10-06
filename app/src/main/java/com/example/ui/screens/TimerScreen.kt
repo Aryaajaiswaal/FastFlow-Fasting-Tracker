@@ -84,6 +84,9 @@ fun TimerScreen(
     onNavigateToStages: () -> Unit,
     onViewAllHistory: () -> Unit,
     onDeleteFast: (Long) -> Unit,
+    currentUser: com.google.firebase.auth.FirebaseUser? = null,
+    onSignInClick: () -> Unit = {},
+    onSignOutClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val isFastingActive = activeFast != null
@@ -118,21 +121,75 @@ fun TimerScreen(
                 )
             }
 
-            Surface(
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier
-                    .size(42.dp)
-                    .clickable { onPlanClick() }
-                    .testTag("plan_settings_icon_btn")
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.Default.Tune,
-                        contentDescription = "Fasting Plans",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp)
-                    )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (currentUser != null) {
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = RenewalEmerald.copy(alpha = 0.15f),
+                        border = BorderStroke(1.dp, RenewalEmerald.copy(alpha = 0.4f)),
+                        modifier = Modifier
+                            .clickable { onSignOutClick() }
+                            .testTag("cloud_synced_pill")
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CheckCircle,
+                                contentDescription = "Synced",
+                                tint = RenewalEmerald,
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "Synced",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = RenewalEmerald
+                            )
+                        }
+                    }
+                } else {
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier
+                            .clickable { onSignInClick() }
+                            .testTag("google_signin_backup_btn")
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                        ) {
+                            Text(
+                                text = "Sign in to Sync",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    modifier = Modifier
+                        .size(42.dp)
+                        .clickable { onPlanClick() }
+                        .testTag("plan_settings_icon_btn")
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Default.Tune,
+                            contentDescription = "Fasting Plans",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
             }
         }

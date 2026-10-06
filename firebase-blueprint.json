@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FastFlow Firestore Blueprint",
+  "entities": {
+    "UserProfile": {
+      "collection": "users",
+      "isDocument": true,
+      "fields": {
+        "userId": { "type": "string" },
+        "selectedPlanName": { "type": "string" },
+        "targetFastHours": { "type": "number" },
+        "eatingWindowHours": { "type": "number" },
+        "dailyWaterGoalMl": { "type": "number" },
+        "createdAt": { "type": "timestamp" },
+        "updatedAt": { "type": "timestamp" }
+      }
+    },
+    "FastingRecord": {
+      "collection": "users/{userId}/fasting_records",
+      "fields": {
+        "userId": { "type": "string" },
+        "startTimeMillis": { "type": "number" },
+        "endTimeMillis": { "type": "number", "optional": true },
+        "targetDurationHours": { "type": "number" },
+        "planName": { "type": "string" },
+        "status": { "type": "string" },
+        "feeling": { "type": "string", "optional": true },
+        "note": { "type": "string", "optional": true },
+        "weightKg": { "type": "number", "optional": true },
+        "createdAt": { "type": "timestamp" },
+        "updatedAt": { "type": "timestamp" }
+      }
+    },
+    "WaterLog": {
+      "collection": "users/{userId}/water_logs",
+      "fields": {
+        "userId": { "type": "string" },
+        "amountMl": { "type": "number" },
+        "timestampMillis": { "type": "number" },
+        "dateKey": { "type": "string" },
+        "createdAt": { "type": "timestamp" }
+      }
+    }
+  }
+}
