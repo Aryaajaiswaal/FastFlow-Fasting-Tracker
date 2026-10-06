@@ -187,6 +187,42 @@ fun LearnScreen(modifier: Modifier = Modifier) {
             }
         }
 
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // 100% Free & Privacy Commitment Card
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            ),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.padding(14.dp),
+                verticalAlignment = Alignment.Top
+            ) {
+                Icon(
+                    imageVector = Icons.Default.CheckCircle,
+                    contentDescription = "Privacy",
+                    tint = RenewalEmerald,
+                    modifier = Modifier.size(20.dp).padding(top = 2.dp)
+                )
+                Spacer(modifier = Modifier.size(10.dp))
+                Column {
+                    Text(
+                        text = "100% Free & Privacy-First",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "FastFlow is completely free with no subscriptions, paywalls, or third-party ads. All your fast logs, hydration entries, and personal notes remain 100% private and stored locally on your device.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+
         Spacer(modifier = Modifier.height(30.dp))
     }
 }

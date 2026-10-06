@@ -157,6 +157,7 @@ fun MainAppScaffold(
                     AppScreen.Timer -> {
                         TimerScreen(
                             activeFast = activeFast,
+                            completedFasts = completedFasts,
                             settings = settings,
                             currentTime = currentTime,
                             elapsedMillis = elapsedMillis,
@@ -169,7 +170,9 @@ fun MainAppScaffold(
                             onAddWater = { ml -> viewModel.addWater(ml) },
                             onUndoWater = { viewModel.undoWater() },
                             onEditWaterGoal = { viewModel.setWaterGoalDialogVisible(true) },
-                            onNavigateToStages = { viewModel.navigateTo(AppScreen.Stages) }
+                            onNavigateToStages = { viewModel.navigateTo(AppScreen.Stages) },
+                            onViewAllHistory = { viewModel.navigateTo(AppScreen.History) },
+                            onDeleteFast = { id -> viewModel.deleteFast(id) }
                         )
                     }
                     AppScreen.Stages -> {
